@@ -6,58 +6,49 @@ var HashTable = function() {
   this._filled = 0;
 };
 
+
 HashTable.prototype.insert = function(k, v) {
   var index = getIndexBelowMaxForKey(k, this._limit);
-  if ( !this._storage.get(index) ) {
-    this._storage.set(index, {});
-  }
-  this._storage.get(index)[k] = v;
-  this._filled++;
-  
-  if (this._filled > this._limit/2) {
-    objAll = {};
-    for( var i = 0; i < this._limit; i++ ) {
-      _.extend(objAll, this._storage.get(i) );
-    }
-    this._limit *= 2;
-    this._storage = LimitedArray(this._limit);
-    for( key in objAll ) {
-      var newIndex = getIndexBelowMaxForKey(key, this._limit);
-      if ( !this._storage.get(newIndex) ) {
-        this._storage.set(newIndex, {});
+  var buckets = this._storage.get(index);
+  if ( !buckets ) {
+    buckets = [[k, v]];
+    this._storage.set(index, buckets);
+  } else {
+    var found = false;
+    for (var i = 0; i < buckets.length; i++) {
+      if (k === buckets[i][0]) {
+        found = true;
+        buckets[i][1] = v;
       }
-      this._storage.get(newIndex)[key] = objAll[key];
+    }
+    if (found === false) {
+      this._storage.get(index).push([k, v]);
     }
   }
+
+
   
 };
 
 HashTable.prototype.retrieve = function(k) {
   var index = getIndexBelowMaxForKey(k, this._limit);
-  return this._storage.get(index)[k];
+  var buckets = this._storage.get(index);
+
+  for (var i = 0; i < buckets.length; i++) {
+    if (k === buckets[i][0]) {
+      return buckets[i][1];
+    }
+  }
 };
 
 HashTable.prototype.remove = function(k) {
   var index = getIndexBelowMaxForKey(k, this._limit);
   this._filled--;
-  delete this._storage.get(index)[k];
-  
-  if (this._limit > 8 && this._filled < this._limit/2) {
-    objAll = {};
-    for( var i = 0; i < this._limit; i++ ) {
-      _.extend(objAll, this._storage.get(i) );
+  var buckets = this._storage.get(index);
+  for (var i = 0; i < buckets.length; i++) {
+    if ( k === buckets[i][0]) {
+      buckets.splice(i, 1);
     }
-    this._limit /= 2;
-    this._storage = LimitedArray(this._limit);
-    for( key in objAll ) {
-      var newIndex = getIndexBelowMaxForKey(key, this._limit);
-      if ( !this._storage.get(newIndex) ) {
-        this._storage.set(newIndex, {});
-      }
-      this._storage.get(newIndex)[key] = objAll[key];
-    }
-    
-
   }
 
 };

@@ -54,7 +54,7 @@ HashTable.prototype.insert = function(k, v) {
 HashTable.prototype.retrieve = function(k) {
   var index = getIndexBelowMaxForKey(k, this._limit);
   var buckets = this._storage.get(index);
-  if(buckets){
+  if (buckets) {
     for (var i = 0; i < buckets.length; i++) {
       if (k === buckets[i][0]) {
         return buckets[i][1];
@@ -94,7 +94,6 @@ HashTable.prototype.remove = function(k) {
     }
     this._storage = newStorage;
   } 
-
 };
 
 /*

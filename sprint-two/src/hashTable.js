@@ -77,7 +77,6 @@ HashTable.prototype.remove = function(k) {
   
   var ratio = this._tuples / this._limit; //ratio of tuple count to storage array length
   if (ratio < 0.25 ) { //if ratio is less than 25%,
-    console.log(this._limit); 
     this._limit /= 2; //cut storage array size in half
     var newStorage = LimitedArray(this._limit);
     for (var i = 0; i < this._limit * 2; i++) {
